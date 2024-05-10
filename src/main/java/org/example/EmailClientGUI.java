@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class EmailClientGUI extends JFrame {
     public EmailClientGUI() {
@@ -11,8 +12,21 @@ public class EmailClientGUI extends JFrame {
         setVisible(true);
     }
 
+    // Initialization of UI components
     private void initUI() {
-        // Initialization of UI components will be done here.
+        // Utilized JList with a DefaultListModel to list email subjects,
+        // making it scrollable by adding it to a JScrollPane.
+        DefaultListModel<String> emailListModel = new DefaultListModel<>();
+        JList<String> emailList = new JList<>(emailListModel);
+        add(new JScrollPane(emailList), BorderLayout.WEST);
+        // Added a JTextArea for displaying the content of the selected email,
+        // also within a JScrollPane to enable scrolling.
+        JTextArea emailContent = new JTextArea();
+        emailContent.setEditable(false);
+        add(new JScrollPane(emailContent), BorderLayout.CENTER);
+        // Added a simple button for initiating the email composition process.
+        JButton composeButton = new JButton("Compose");
+        add(composeButton, BorderLayout.SOUTH);
     }
 
     public static void main(String[] args) {
