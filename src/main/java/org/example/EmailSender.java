@@ -1,4 +1,5 @@
 package org.example;
+import java.io.File;
 import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -22,25 +23,44 @@ public class EmailSender {
                     }
                 });
 
-        // Create an email with specified sender, recipient, subject, and body and sent it using Gmail's SMTP server.
+        // Create an email with specified sender, recipient, subject, and body
+        // and sent it using Gmail's SMTP server.
         try {
-            MimeMessage message = new MimeMessage(session);
+            Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
-            message.setText(body);
+
+            // Added functionality to attach one or more files to the email.
+            // Each file selected for attachment is added as a separate MimeBodyPart,
+            // and all parts (text and attachments) are combined into a Multipart object.
+            Multipart multipart = new MimeMultipart();
+
+            // Add text as a MimeBodyPart object
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setText(body);
+            multipart.addBodyPart(textPart);
+
+            // Add each attachment as a MimeBodyPart object
+            for (File file : attachments) {
+                MimeBodyPart attachmentPart = new MimeBodyPart();
+                attachmentPart.attachFile(file);
+                multipart.addBodyPart(attachmentPart);
+            }
+
+            message.setContent(multipart);
 
             Transport.send(message);
-            System.out.println("Email sent successfully via Gmail");
+            System.out.println("Email sent successfully with attachments.");
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
         // Example email details - replace with actual recipient details
-        String to = "recipient@example.com";
+        String to = "amirhossein.andoohgin@gmail.com";
         String subject = "Test Email from Java App";
         String body = "Hello, this is a test email sent from the Java EmailSender class.";
 
