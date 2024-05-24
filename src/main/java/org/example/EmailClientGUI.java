@@ -5,6 +5,8 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class EmailClientGUI extends JFrame {
 
@@ -17,7 +19,23 @@ public class EmailClientGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initUI();
         setVisible(true);
+
+        // Add window listener to handle application close
+        // This ensures when we exit the application, the email session is properly closed.
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    if (EmailSessionManager.getInstance() != null) {
+                        EmailSessionManager.getInstance().close(); // Close the email session
+                    }
+                } catch (MessagingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
+
 
     // Initialization of UI components
     private void initUI() {
