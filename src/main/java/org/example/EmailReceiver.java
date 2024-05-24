@@ -1,9 +1,22 @@
 package org.example;
 import javax.mail.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class EmailReceiver {
-    public static void receiveEmail(String username, String password) {
+    // Implement static fields for storing email credentials
+    private static String username = "";
+    private static String password = "";
+
+    // Add a method to dynamically set these credentials
+    // so that they can be called with the user's input from the GUI after login.
+    public static void setCredentials(String user, String pass) {
+        username = user;
+        password = pass;
+    }
+
+    public static Message[] receiveEmail() throws MessagingException {
         // Set up properties to access Gmail's IMAP server
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "imaps");
@@ -11,39 +24,25 @@ public class EmailReceiver {
         properties.put("mail.imaps.port", "993");
         properties.put("mail.imaps.ssl.enable", "true");
 
-        try {
-            Session emailSession = Session.getDefaultInstance(properties);
+        List<Message> messagesList = new ArrayList<>();
 
-            // Utilize the Session object to obtain a Store object configured for IMAP
-            Store store = emailSession.getStore("imaps");
-            store.connect("imap.gmail.com", username, password);
+        // Utilize the Session object to obtain a Store object configured for IMAP
+        Session emailSession = Session.getInstance(properties);
+        Store store = emailSession.getStore("imaps");
+        store.connect("imap.gmail.com", username, password);
 
-            // Open the "INBOX" folder from the store in read-only mode,
-            Folder emailFolder = store.getFolder("INBOX");
-            emailFolder.open(Folder.READ_ONLY);
+        // Open the "INBOX" folder from the store in read-only mode,
+        Folder emailFolder = store.getFolder("INBOX");
+        emailFolder.open(Folder.READ_ONLY);
 
-            // Fetch an array of Message objects from the inbox
-            Message[] messages = emailFolder.getMessages();
-            System.out.println("Number of emails: " + messages.length);
-
-            for (Message message : messages) {
-                System.out.println("Email Subject: " + message.getSubject());
-            }
-
-            emailFolder.close(false);
-            store.close();
-
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-        } catch (MessagingException e) {
-            e.printStackTrace();
+        Message[] messages = emailFolder.getMessages();
+        for (Message message : messages) {
+            messagesList.add(message);
         }
-    }
 
-    public static void main(String[] args) {
-        String username = "yourgmail@gmail.com"; // Replace with your Gmail username
-        String password = "yourpassword"; // Replace with your Gmail password
+        emailFolder.close(false);
+        store.close();
 
-        receiveEmail(username, password);
+        return messagesList.toArray(new Message[0]);
     }
 }
