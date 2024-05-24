@@ -1,9 +1,16 @@
 package org.example;
-
+import javax.mail.MessagingException;
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 
 public class EmailClientGUI extends JFrame {
+
+    private JTextField usernameField = new JTextField(20);
+    private JPasswordField passwordField = new JPasswordField(20);
+
     public EmailClientGUI() {
         setTitle("Java Email Client");
         setSize(600, 400);
@@ -27,11 +34,45 @@ public class EmailClientGUI extends JFrame {
         // Added a simple button for initiating the email composition process.
         JButton composeButton = new JButton("Compose");
         add(composeButton, BorderLayout.SOUTH);
+        // Ensured the login dialog is invoked immediately after the UI initializes,
+        // making the login process the first interaction the user has with the application.
+        SwingUtilities.invokeLater(this::showLoginDialog);
+    }
+
+    // Implement a login dialog that prompts the user to provide their email credentials.
+    private void showLoginDialog() {
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Email:"));
+        panel.add(usernameField);
+        panel.add(new JLabel("App Password:"));
+        panel.add(passwordField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Login",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+
+            try {
+                // Initialize EmailSessionManager here
+                EmailSessionManager.getInstance(username, password);
+                refreshInbox(); // Refresh inbox to load emails
+            } catch (MessagingException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Failed to initialize email session: " + e.getMessage(),
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            System.out.println("Login cancelled.");
+        }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new EmailClientGUI());
         // To launch the GUI on the Event Dispatch Thread (EDT)
-        // It ensures that the GUI is initialized and displayed correctly, even if other tasks are being performed by the application's main thread.
+        // It ensures that the GUI is initialized and displayed correctly,
+        // even if other tasks are being performed by the application's main thread.
     }
 }
