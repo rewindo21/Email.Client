@@ -11,6 +11,7 @@ public class EmailSender {
             String username = EmailSessionManager.getUsername();
             String password = EmailSessionManager.getPassword();
 
+
             // Set up properties to access Gmail's STMP server
             Properties prop = new Properties();
             prop.put("mail.smtp.host", "smtp.gmail.com");
